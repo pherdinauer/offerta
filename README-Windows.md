@@ -112,6 +112,12 @@ start.bat down
 3. Imposta **ANDROID_HOME** environment variable
 4. Abilita **Developer Options** sul device/emulatore
 
+### Nuove Funzionalità Mobile
+- ✅ **Scatto foto** con fotocamera integrata
+- ✅ **Selezione da galleria** per foto esistenti
+- ✅ **Anteprima immagine** prima dell'invio
+- ✅ **Conferma e invio** con controlli intuitivi
+
 ### Build APK
 ```cmd
 # Sviluppo

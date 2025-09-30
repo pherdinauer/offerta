@@ -5,6 +5,8 @@ Un'applicazione mobile che analizza gli scontrini per determinare se i prodotti 
 ## 🎯 Funzionalità
 
 - **Scatto scontrini**: Fotografa lo scontrino con la fotocamera
+- **Galleria foto**: Seleziona foto esistenti dalla galleria
+- **Anteprima immagine**: Visualizza e conferma la foto prima dell'invio
 - **Analisi OCR**: Estrazione automatica dei prodotti e prezzi
 - **Confronto prezzi**: Confronto con lo storico personale
 - **Semaforo offerte**: Verde (ottima), Giallo (normale), Rosso (cara)
@@ -125,9 +127,16 @@ mobile/
 
 ### Schermate
 1. **Home** - Dashboard principale
-2. **Camera** - Scatto scontrino
+2. **Camera** - Scatto scontrino o selezione da galleria
 3. **Result** - Risultati analisi
 4. **History** - Storico scontrini
+
+### Funzionalità Camera
+- **Scatto foto** con fotocamera integrata
+- **Selezione da galleria** per foto esistenti
+- **Anteprima immagine** prima dell'invio
+- **Gestione permessi** automatica
+- **Conferma e invio** con controlli intuitivi
 
 ## 🔧 Backend API
 

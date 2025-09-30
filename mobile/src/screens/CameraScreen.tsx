@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -17,6 +18,8 @@ import { RootStackParamList } from '../../App';
 import { useAppStore } from '../store/useAppStore';
 import { apiService } from '../services/api';
 import Toast from 'react-native-toast-message';
+import { launchImageLibrary, launchCamera, ImagePickerResponse, MediaType } from 'react-native-image-picker';
+import { requestCameraPermission, requestGalleryPermission } from '../utils/permissions';
 
 type CameraScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Camera'>;
 
@@ -24,8 +27,50 @@ const CameraScreen: React.FC = () => {
   const navigation = useNavigation<CameraScreenNavigationProp>();
   const { setLoading, addReceipt } = useAppStore();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const handleImagePicker = (response: ImagePickerResponse) => {
+    if (response.didCancel || response.errorMessage) {
+      return;
+    }
+
+    if (response.assets && response.assets[0]) {
+      const asset = response.assets[0];
+      if (asset.uri) {
+        setSelectedImage(asset.uri);
+      }
+    }
+  };
 
   const handleTakePhoto = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) return;
+
+    const options = {
+      mediaType: 'photo' as MediaType,
+      quality: 0.8,
+      maxWidth: 2000,
+      maxHeight: 2000,
+    };
+
+    launchCamera(options, handleImagePicker);
+  };
+
+  const handleSelectFromGallery = async () => {
+    const hasPermission = await requestGalleryPermission();
+    if (!hasPermission) return;
+
+    const options = {
+      mediaType: 'photo' as MediaType,
+      quality: 0.8,
+      maxWidth: 2000,
+      maxHeight: 2000,
+    };
+
+    launchImageLibrary(options, handleImagePicker);
+  };
+
+  const handleUploadImage = async (imageUri: string) => {
     try {
       setIsProcessing(true);
       setLoading(true);
@@ -36,12 +81,8 @@ const CameraScreen: React.FC = () => {
       // Get presigned upload URL
       const uploadResponse = await apiService.createUploadUrl(clientUploadId);
 
-      // For demo purposes, we'll simulate the upload
-      // In a real app, you would use react-native-image-picker or react-native-camera
-      const mockFileUri = 'file://mock_receipt.jpg';
-
       // Upload file
-      await apiService.uploadFile(uploadResponse.upload_url, mockFileUri);
+      await apiService.uploadFile(uploadResponse.upload_url, imageUri);
 
       // Create receipt
       const receiptResponse = await apiService.createReceipt(
@@ -85,13 +126,14 @@ const CameraScreen: React.FC = () => {
     }
   };
 
-  const handleSelectFromGallery = () => {
-    // TODO: Implement gallery selection
-    Alert.alert(
-      'Seleziona da galleria',
-      'Questa funzionalità sarà disponibile presto',
-      [{ text: 'OK' }]
-    );
+  const handleConfirmImage = () => {
+    if (selectedImage) {
+      handleUploadImage(selectedImage);
+    }
+  };
+
+  const handleRetakeImage = () => {
+    setSelectedImage(null);
   };
 
   return (
@@ -110,37 +152,70 @@ const CameraScreen: React.FC = () => {
           </Text>
         </View>
 
-        {/* Camera Preview Placeholder */}
-        <View style={styles.cameraPreview}>
-          <Text style={styles.cameraText}>
-            📷 Fotocamera
-          </Text>
-          <Text style={styles.cameraSubtext}>
-            Tocca per scattare una foto
-          </Text>
-        </View>
+        {/* Image Preview or Camera Placeholder */}
+        {selectedImage ? (
+          <View style={styles.imagePreview}>
+            <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+            <View style={styles.imageOverlay}>
+              <Text style={styles.imageOverlayText}>
+                Anteprima scontrino
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.cameraPreview}>
+            <Text style={styles.cameraText}>
+              📷 Fotocamera
+            </Text>
+            <Text style={styles.cameraSubtext}>
+              Tocca per scattare una foto
+            </Text>
+          </View>
+        )}
 
         {/* Action Buttons */}
         <View style={styles.actions}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.primaryButton]}
-            onPress={handleTakePhoto}
-            disabled={isProcessing}
-          >
-            {isProcessing ? (
-              <ActivityIndicator color="#ffffff" />
-            ) : (
-              <Text style={styles.primaryButtonText}>Scatta Foto</Text>
-            )}
-          </TouchableOpacity>
+          {selectedImage ? (
+            <>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.primaryButton]}
+                onPress={handleConfirmImage}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <ActivityIndicator color="#ffffff" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Conferma e Invia</Text>
+                )}
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.actionButton, styles.secondaryButton]}
-            onPress={handleSelectFromGallery}
-            disabled={isProcessing}
-          >
-            <Text style={styles.secondaryButtonText}>Da Galleria</Text>
-          </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.secondaryButton]}
+                onPress={handleRetakeImage}
+                disabled={isProcessing}
+              >
+                <Text style={styles.secondaryButtonText}>Rifai Foto</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={[styles.actionButton, styles.primaryButton]}
+                onPress={handleTakePhoto}
+                disabled={isProcessing}
+              >
+                <Text style={styles.primaryButtonText}>Scatta Foto</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, styles.secondaryButton]}
+                onPress={handleSelectFromGallery}
+                disabled={isProcessing}
+              >
+                <Text style={styles.secondaryButtonText}>Da Galleria</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         {/* Tips */}
@@ -197,6 +272,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ffffff',
     textAlign: 'center',
+  },
+  imagePreview: {
+    flex: 1,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    marginBottom: 20,
+    minHeight: 300,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 12,
+    alignItems: 'center',
+  },
+  imageOverlayText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '500',
   },
   actions: {
     flexDirection: 'row',

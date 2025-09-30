@@ -65,18 +65,26 @@ export const apiService = {
    * Upload file to presigned URL
    */
   async uploadFile(uploadUrl: string, fileUri: string): Promise<void> {
-    const formData = new FormData();
-    formData.append('file', {
-      uri: fileUri,
-      type: 'image/jpeg',
-      name: 'receipt.jpg',
-    } as any);
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', {
+        uri: fileUri,
+        type: 'image/jpeg',
+        name: 'receipt.jpg',
+      } as any);
 
-    await axios.put(uploadUrl, formData, {
-      headers: {
-        'Content-Type': 'image/jpeg',
-      },
-    });
+      // Upload to presigned URL
+      await axios.put(uploadUrl, formData, {
+        headers: {
+          'Content-Type': 'image/jpeg',
+        },
+        timeout: 30000, // 30 seconds timeout
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw new Error('Failed to upload image');
+    }
   },
 
   /**
