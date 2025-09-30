@@ -1,0 +1,45 @@
+# Docker Compose override for Windows development
+version: '3.8'
+
+services:
+  # Override for Windows-specific configurations
+  postgres:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: offerta_db
+      POSTGRES_USER: offerta_user
+      POSTGRES_PASSWORD: offerta_pass
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  minio:
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+
+  api:
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://offerta_user:offerta_pass@postgres:5432/offerta_db
+      - REDIS_URL=redis://redis:6379/0
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - PADDLEOCR_URL=http://paddleocr:8866
+
+  paddleocr:
+    ports:
+      - "8866:8866"
+
+  nginx:
+    ports:
+      - "80:80"

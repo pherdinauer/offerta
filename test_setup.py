@@ -22,6 +22,8 @@ def test_backend():
             return False
     except requests.exceptions.RequestException as e:
         print(f"❌ Cannot connect to backend: {e}")
+        print("💡 Make sure Docker is running and services are started")
+        print("💡 Try: start.bat up (Windows) or make up (Linux/Mac)")
         return False
     
     # Test API docs
@@ -123,16 +125,27 @@ def main():
     if all_passed:
         print("🎉 All tests passed! Your setup is working correctly.")
         print("\n📱 Next steps:")
-        print("  1. Install mobile dependencies: make install-mobile")
-        print("  2. Build mobile app: make build-mobile")
-        print("  3. Open API docs: make api-docs")
-        print("  4. Open MinIO console: make minio-console")
+        print("  Windows:")
+        print("    1. Install mobile dependencies: start.bat mobile-install")
+        print("    2. Build mobile app: start.bat mobile-build")
+        print("    3. Open API docs: http://localhost:8000/docs")
+        print("    4. Open MinIO console: http://localhost:9001")
+        print("  Linux/Mac:")
+        print("    1. Install mobile dependencies: make install-mobile")
+        print("    2. Build mobile app: make build-mobile")
+        print("    3. Open API docs: make api-docs")
+        print("    4. Open MinIO console: make minio-console")
     else:
         print("⚠️ Some tests failed. Check the logs above.")
         print("\n🔧 Troubleshooting:")
-        print("  1. Make sure all services are running: make up")
-        print("  2. Check logs: make logs")
-        print("  3. Restart services: make down && make up")
+        print("  Windows:")
+        print("    1. Make sure all services are running: start.bat up")
+        print("    2. Check logs: start.bat logs")
+        print("    3. Restart services: start.bat down && start.bat up")
+        print("  Linux/Mac:")
+        print("    1. Make sure all services are running: make up")
+        print("    2. Check logs: make logs")
+        print("    3. Restart services: make down && make up")
     
     return 0 if all_passed else 1
 

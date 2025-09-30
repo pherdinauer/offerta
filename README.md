@@ -37,6 +37,7 @@ Un'applicazione mobile che analizza gli scontrini per determinare se i prodotti 
 
 ### 1. Avvia il backend
 
+#### Linux/Mac
 ```bash
 # Clona il repository
 git clone <repository-url>
@@ -49,14 +50,55 @@ make up
 curl http://localhost:8000/healthz
 ```
 
+#### Windows
+```cmd
+# Clona il repository
+git clone <repository-url>
+cd offerta
+
+# Avvia tutti i servizi
+start.bat up
+
+# Verifica che tutto funzioni
+start.bat test
+```
+
+#### PowerShell
+```powershell
+# Avvia tutti i servizi
+.\start.ps1 up
+
+# Verifica che tutto funzioni
+.\start.ps1 test
+```
+
 ### 2. Sviluppa il mobile
 
+#### Linux/Mac
 ```bash
 # Installa dipendenze
 make install-mobile
 
 # Avvia l'app (richiede Android Studio)
 make build-mobile
+```
+
+#### Windows
+```cmd
+# Installa dipendenze
+start.bat mobile-install
+
+# Avvia l'app (richiede Android Studio)
+start.bat mobile-build
+```
+
+#### PowerShell
+```powershell
+# Installa dipendenze
+.\start.ps1 mobile-install
+
+# Avvia l'app (richiede Android Studio)
+.\start.ps1 mobile-build
 ```
 
 ### 3. Accedi ai servizi
@@ -136,6 +178,8 @@ GET /api/v1/offer-check?ean=123&price=2.50&size=300&uom=g
 ## 🛠️ Sviluppo
 
 ### Comandi utili
+
+#### Linux/Mac
 ```bash
 # Sviluppo
 make dev              # Avvia ambiente completo
@@ -150,6 +194,30 @@ make migrate-create   # Crea nuova migrazione
 make install-mobile   # Installa dipendenze
 make build-mobile     # Build Android
 make test-mobile      # Test mobile
+```
+
+#### Windows
+```cmd
+# Sviluppo
+start.bat dev         # Avvia ambiente completo
+start.bat logs        # Logs in tempo reale
+start.bat clean       # Pulisci tutto
+
+# Mobile
+start.bat mobile-install   # Installa dipendenze
+start.bat mobile-build     # Build Android
+```
+
+#### PowerShell
+```powershell
+# Sviluppo
+.\start.ps1 dev       # Avvia ambiente completo
+.\start.ps1 logs      # Logs in tempo reale
+.\start.ps1 clean     # Pulisci tutto
+
+# Mobile
+.\start.ps1 mobile-install   # Installa dipendenze
+.\start.ps1 mobile-build     # Build Android
 ```
 
 ### Struttura progetto
